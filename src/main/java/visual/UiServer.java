@@ -33,10 +33,10 @@ public class UiServer extends NanoHTTPD implements UiServerGrpc.UiServer {
     Server server;
 
 	public UiServer() throws IOException {
-		super(8888);
+		super(8005);
         Context.init();
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
-		System.out.println("\nRunning! Point your browsers to http://localhost:8888/ \n");
+		System.out.println("\nRunning! Point your browsers to http://localhost:8005/ \n");
         server = ServerBuilder.forPort(Context.uiPort).addService(UiServerGrpc.bindService(this)).build();
         try {
             server.start();

@@ -82,7 +82,7 @@ public abstract class DataSet implements Runnable {
                     String line = source.readLine();
 					if (line == null) {
 						eof = true;
-						logger.info("read eof");
+						//logger.info("read eof");
 						break;
 					}
                     List<Feature> features = parser.parse(line);

@@ -75,9 +75,9 @@ public class Context {
 		isPsAsync = "1".equals(System.getProperty("isPsAsync", "0"));
 		workerNum = Integer.parseInt((System.getProperty("workerNum", "1")));
 		isMajor = "1".equals(System.getProperty("isMajor", "1"));
-		psPort = Integer.parseInt((System.getProperty("psPort", "8890")));
+		psPort = Integer.parseInt((System.getProperty("psPort", "8891")));
 		psHost = System.getProperty("psHost", "localhost");
-		psAddrs = System.getProperty("psAddrs", "localhost:8890");
+		psAddrs = System.getProperty("psAddrs", "localhost:8890,localhost:8891");
 		uiPort = Integer.parseInt((System.getProperty("uiPort", "8990")));
 		uiHost = System.getProperty("uiHost", "localhost");
 		try {

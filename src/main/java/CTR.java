@@ -69,7 +69,9 @@ public class CTR extends DataSet {
 
 	public static void main(String args[]) throws Exception {
 		Context.init();
-		Context.thread = 1;
+		Context.thread = 2;
+		Context.mode = Context.Mode.DISTRIBUTED;
+
 		if (Context.isPServer()) {
 			// 启动PS进程
 			Updater updater = new AdamUpdater(0.005, 0.9, 0.999, Math.pow(10, -8));
@@ -85,13 +87,15 @@ public class CTR extends DataSet {
 
 		testSet = new CTR(new LibsvmParser(), new FileSource(new File(System.getProperty("test",
 				CTR.class.getResource("").getPath()+"../../src/main/resources/test.txt"))), 100, 1);
+
 		Trainer trainer = new Trainer(Context.thread, new Callable<Model>() {
 			@Override
 			public Model call() throws Exception {
 				return DNN.buildModel(23, 10, 45, new int[]{150, 10, 1});
 			}
 		});
-		for (int epoch = 0; epoch < 100 && !Context.finish; epoch++) {
+
+		for (int epoch = 0; epoch < 10 && !Context.finish; epoch++) {
 			logger.info("epoch {}", epoch);
 			train(trainer);
 

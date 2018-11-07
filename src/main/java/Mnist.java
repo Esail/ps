@@ -74,47 +74,76 @@ public class Mnist extends DataSet {
 
 	public static void main(String args[]) throws Exception {
 		Context.init();
+
 		Context.thread = 4;
+		//Context.workerNum = 2;
+
+		Context.mode = Context.Mode.DISTRIBUTED;
+
+		//Context.isPsAsync = true;
+		//Context.isPs = true;
+
 		if (Context.isPServer()) {
 			// 启动PS进程
 			Updater updater = new AdamUpdater(0.005, 0.9, 0.999, Math.pow(10, -8));
+
 			Updater ftrl = new FtrlUpdater(0.005f, 1f, 0.001f, 0.001f);
+
 			PServer server = new PServer(Context.psPort, Context.workerNum);
+
 			server.getUpdaterMap().put(updater.getName(), updater);
+
 			server.getUpdaterMap().put(ftrl.getName(), ftrl);
+
 			server.start();
+
 			System.exit(0);
 		}
+
 		trainSet = new Mnist(new MnistParser(), new FileSource(new File(System.getProperty("train",
 				Mnist.class.getResource("").getPath()+"../../src/main/resources/mnist_train.csv"))), 1000, 1);
+
 		testSet = new Mnist(new MnistParser(), new FileSource(new File(System.getProperty("test",
 				Mnist.class.getResource("").getPath()+"../../src/main/resources/mnist_test.csv"))), 1000, 1);
+
 		Trainer trainer = new Trainer(Context.thread, new Callable<Model>() {
+
 			@Override
 			public Model call() throws Exception {
 				return FullConnectedNN.buildModel(784, new int[]{150, 50, 10});
 			}
+
 		});
-		for (int epoch = 0; epoch < 100 && !Context.finish; epoch++) {
+
+		for (int epoch = 0; epoch < 20 && !Context.finish; epoch++) {
 			logger.info("epoch {}", epoch);
 			train(trainer);
-
 			precision(trainer);
 		}
 	}
 
 	private static void train(Trainer trainer) throws IOException {
 		while (trainSet.hasNext()) {
+
 			List<Map<String, FloatMatrix>> dataList = Lists.newArrayList();
+
 			for (int i=0; i<Context.thread; i++) {
+
 				Map<String, FloatMatrix> datas = trainSet.next();
+
 				if (datas == null || datas.isEmpty()) {
+
 					continue;
+
 				}
+
 				dataList.add(datas);
+
 			}
+
 			trainer.train(dataList);
 		}
+
 		trainSet.reset();
 	}
 
@@ -150,6 +179,37 @@ public class Mnist extends DataSet {
 		}
 		SoftmaxPrecision precision = new SoftmaxPrecision(l, p);
 		logger.info("Precision {}", precision.calculate());
+		testSet.reset();
+	}
+
+
+	private static void auc(Trainer trainer) throws IOException {
+		logger.info("begin compute auc...");
+		List<Pair<Double, Double>> data = new ArrayList<Pair<Double, Double>>();
+		while (testSet.hasNext()) {
+			List<Map<String, FloatMatrix>> dataList = Lists.newArrayList();
+			List<FloatMatrix> y = Lists.newArrayList();
+			for (int i=0; i<Context.thread; i++) {
+				Map<String, FloatMatrix> datas = testSet.next();
+				if (datas == null || datas.isEmpty()) {
+					// logger.info("read data eof");
+					break;
+				}
+				y.add(datas.get("Y"));
+				dataList.add(datas);
+			}
+			FloatMatrix[] ps = trainer.predict(dataList);
+			for (int i=0; i<y.size(); i++) {
+				if (ps[i] == null) {
+					continue;
+				}
+				for (int j=0; j<y.get(i).length; j++) {
+					data.add(new MutablePair<Double, Double>((double) ps[i].data[j], (double) y.get(i).data[j]));
+				}
+			}
+		}
+		AUC auc = new AUC(data);
+		logger.info("AUC {}", auc.calculate());
 		testSet.reset();
 	}
 }
