@@ -1,6 +1,5 @@
 package layer;
 
-
 import org.jblas.FloatMatrix;
 
 public class InputLayer extends Layer {

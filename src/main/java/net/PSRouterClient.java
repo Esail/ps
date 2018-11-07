@@ -5,29 +5,26 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import context.Context;
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jblas.FloatMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.MatrixUtil;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class PSRouterClient extends PSClient {
 
 	static Logger logger = LoggerFactory.getLogger(PSRouterClient.class);
-
 	List<PSClient> clients = Lists.newArrayList();
 
 	Router router;
-
 	ExecutorService executor = Executors.newCachedThreadPool();
 
 	public PSRouterClient(Router router) {
@@ -72,15 +69,12 @@ public class PSRouterClient extends PSClient {
 				}
 			}));
 		}
-		for (Future<Map<String, FloatMatrix>> f : futures) {
+		for (Future<Map<String, FloatMatrix>> f : futures)
 			try {
 				response.putAll(f.get());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
+			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
-		}
 		return response;
 	}
 
@@ -98,26 +92,22 @@ public class PSRouterClient extends PSClient {
 		}
 		List<Future<Map<String, FloatMatrix>>> futures = Lists.newArrayList();
 		for (PSClient c : request.keySet()) {
-			futures.add(executor.submit(new Callable<Map<String, FloatMatrix>>() {
-				@Override
-				public Map<String, FloatMatrix> call() throws Exception {
-					Map<String, FloatMatrix> params = Maps.newHashMap();
-					for (Pair<String, FloatMatrix> p : request.get(c)) {
-						params.put(p.getKey(), p.getValue());
-					}
-					return c.updateList(params, replace);
+			futures.add(executor.submit(() -> {
+				Map<String, FloatMatrix> params = Maps.newHashMap();
+				for (Pair<String, FloatMatrix> p : request.get(c)) {
+					params.put(p.getKey(), p.getValue());
 				}
+				return c.updateList(params, replace);
 			}));
 		}
-		for (Future<Map<String, FloatMatrix>> f : futures) {
+
+		for (Future<Map<String, FloatMatrix>> f : futures)
 			try {
 				response.putAll(f.get());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
+			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
-		}
+
 		return response;
 	}
 
@@ -128,23 +118,19 @@ public class PSRouterClient extends PSClient {
 	}
 
 	// 阻塞等待ps 进入下一轮训练
+	@SuppressWarnings("unchecked")
 	public void barrier() {
 		List<Future> futures = Lists.newArrayList();
 		for (PSClient c : clients) {
-			futures.add(executor.submit(new Callable() {
-				@Override
-				public Void call() throws Exception {
-					c.barrier();
-					return null;
-				}
+			futures.add(executor.submit((Callable) () -> {
+				c.barrier();
+				return null;
 			}));
 		}
 		for (Future f : futures) {
 			try {
 				f.get();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (ExecutionException e) {
+			} catch (InterruptedException | ExecutionException e) {
 				e.printStackTrace();
 			}
 		}

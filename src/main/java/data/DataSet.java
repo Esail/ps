@@ -2,40 +2,37 @@ package data;
 
 import com.google.common.collect.Lists;
 import org.jblas.FloatMatrix;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.*;
 
 public abstract class DataSet implements Runnable {
 
-	static Logger logger = LoggerFactory.getLogger(DataSet.class);
+	private static Logger logger = LoggerFactory.getLogger(DataSet.class);
 
     protected Parser parser;
 
-    protected BlockingQueue<Map<String, FloatMatrix>> queue;
+    private BlockingQueue<Map<String, FloatMatrix>> queue;
 
-    protected ExecutorService executor;
+    private ExecutorService executor;
 
     protected DataSource source;
 
-    protected int batch;
+    private int batch;
 
-    protected int thread;
+    private int thread;
 
-
-	protected volatile boolean eof = false;
+	private volatile boolean eof = false;
 
     public DataSet(Parser parser, DataSource source, int batch, int thread) {
         this.parser = parser;
         this.source = source;
         this.batch = batch;
         this.thread = thread;
-        // 1倍 预先填充
         this.queue = new ArrayBlockingQueue<>(thread * 2);
 		start();
     }
@@ -53,10 +50,7 @@ public abstract class DataSet implements Runnable {
 	}
 
 	public boolean hasNext() {
-		if (queue.isEmpty() && eof) {
-			return false;
-		}
-		return true;
+		return !queue.isEmpty() || !eof;
 	}
 
 	public void reset() {
@@ -67,7 +61,7 @@ public abstract class DataSet implements Runnable {
 		start();
 	}
 
-    public void start() {
+    private void start() {
 		executor = Executors.newFixedThreadPool(thread);
         for (int i=0; i<thread; i++) {
             executor.execute(this);
@@ -94,10 +88,9 @@ public abstract class DataSet implements Runnable {
 				logger.debug("add batch data to queue");
                 queue.put(parseFeature(dataList));
             } catch (Exception e) {
-                // ignore
+                //ignore
             }
         }
     }
-
     public abstract Map<String, FloatMatrix> parseFeature(List<List<Feature>> dataList);
 }

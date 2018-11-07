@@ -2,5 +2,5 @@ package net;
 
 
 public interface Router {
-	public int shard(String key);
+	int shard(String key);
 }

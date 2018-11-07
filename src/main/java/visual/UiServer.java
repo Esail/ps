@@ -9,7 +9,8 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import lombok.Data;
-import net.PServer;
+import lombok.EqualsAndHashCode;
+
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class UiServer extends NanoHTTPD implements UiServerGrpc.UiServer {
 
@@ -32,7 +34,7 @@ public class UiServer extends NanoHTTPD implements UiServerGrpc.UiServer {
 
     Server server;
 
-	public UiServer() throws IOException {
+	private UiServer() throws IOException {
 		super(8005);
         Context.init();
         start(NanoHTTPD.SOCKET_READ_TIMEOUT, false);
@@ -42,16 +44,14 @@ public class UiServer extends NanoHTTPD implements UiServerGrpc.UiServer {
             server.start();
             logger.info("start ui grpc port {}", Context.uiPort);
             server.awaitTermination();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         } finally {
             close();
         }
     }
 
-    public void close() {
+    private void close() {
         server.shutdown();
     }
 
@@ -71,7 +71,7 @@ public class UiServer extends NanoHTTPD implements UiServerGrpc.UiServer {
 			if ("data".equals(params.get("act"))) {
 				// /act=data&key=fc0,fc1
 				String keys = params.get("key");
-				Map<String, Float> step = Maps.newHashMap();
+				Map step = Maps.newHashMap();
 				try {
 					step = objectMapper.readValue(body.get("postData"), Map.class);
 				} catch (IOException e) {
@@ -126,29 +126,25 @@ public class UiServer extends NanoHTTPD implements UiServerGrpc.UiServer {
         if (y == null) {
             y = ys.putIfAbsent(key, Lists.newArrayList());
         }
-		assert y != null;
-		synchronized (y) {
+		synchronized (Objects.requireNonNull(y)) {
 			y.addAll(request.getData().getYList());
 		}
-		assert x != null;
-		synchronized (x) {
+		synchronized (Objects.requireNonNull(x)) {
 			x.addAll(request.getData().getXList());
 		}
 		responseObserver.onNext(PlotMessage.newBuilder().build());
 		responseObserver.onCompleted();
 	}
 
-	public static String readToString(String fileName) {
+	private static String readToString(String fileName) {
 		String encoding = "UTF-8";
 		File file = new File(fileName);
 		Long filelength = file.length();
 		byte[] filecontent = new byte[filelength.intValue()];
 		try {
 			FileInputStream in = new FileInputStream(file);
-			in.read(filecontent);
+			int status = in.read(filecontent);
 			in.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

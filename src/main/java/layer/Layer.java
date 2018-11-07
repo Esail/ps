@@ -1,12 +1,8 @@
 package layer;
 
-import com.google.common.collect.Lists;
 import lombok.Data;
 import org.jblas.FloatMatrix;
 import store.KVStore;
-import update.Updater;
-
-import java.util.List;
 
 @Data
 public abstract class Layer {

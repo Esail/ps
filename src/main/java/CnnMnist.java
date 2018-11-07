@@ -4,7 +4,6 @@ import context.Context;
 import data.*;
 import evaluate.SoftmaxPrecision;
 import model.CNN;
-import model.FullConnectedNN;
 import model.Model;
 import net.PServer;
 import org.jblas.FloatMatrix;
@@ -21,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+/*
 public class CnnMnist extends DataSet {
 
 	private static Logger logger = LoggerFactory.getLogger(CTR.class);
@@ -144,3 +144,4 @@ public class CnnMnist extends DataSet {
 		testSet.reset();
 	}
 }
+*/

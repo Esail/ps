@@ -4,14 +4,12 @@ import activations.Softmax;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import context.Context;
-import evaluate.AUC;
 import evaluate.SoftmaxPrecision;
 import layer.*;
 import lombok.Data;
 import loss.CrossEntropy;
 import loss.Loss;
 import loss.SoftmaxLoss;
-import org.apache.commons.math3.util.Precision;
 import org.jblas.FloatMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +65,8 @@ public class FullConnectedNN implements Model {
 	}
 
 	public void pullWeights() {
-		for (int i=0; i<layers.size(); i++) {
-			layers.get(i).pullWeights();
+		for (Layer layer : layers) {
+			layer.pullWeights();
 		}
 	}
 
@@ -95,7 +93,7 @@ public class FullConnectedNN implements Model {
 		// 全连接
 		List<Layer> fcLayers = FcLayer.build(numberFeatureLayer.getOutputDims(), fcLayerDims);
 		((FcLayer)fcLayers.get(fcLayers.size() - 1)).setActivation(new Softmax());
-		/**
+		/*
 		 * 组织层关系
 		 * number -> full connected
 		 */

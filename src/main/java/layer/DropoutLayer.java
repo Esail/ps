@@ -1,17 +1,16 @@
 package layer;
 
-
 import context.Context;
 import org.jblas.FloatMatrix;
 import util.MatrixUtil;
 
 public class DropoutLayer extends Layer {
 
-	float p = 0.5f;
+	private float p = 0.5f;
 
-	FloatMatrix mask;
+	private FloatMatrix mask;
 
-	boolean scale;
+	private boolean scale;
 
 	public DropoutLayer(String name, float p, boolean scale) {
 		this.name = name;
@@ -55,6 +54,5 @@ public class DropoutLayer extends Layer {
 	@Override
 	public void pullWeights() {
 		mask = null;
-		return;
 	}
 }

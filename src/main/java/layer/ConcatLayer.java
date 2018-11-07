@@ -2,10 +2,12 @@ package layer;
 
 import com.google.common.collect.Lists;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jblas.FloatMatrix;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class ConcatLayer extends Layer {
 
@@ -39,8 +41,7 @@ public class ConcatLayer extends Layer {
 	public FloatMatrix backward() {
 		this.delta = next.delta;
 		int offset = 0;
-		for (int i=0; i<inputs.size(); i++) {
-			Layer l = inputs.get(i);
+		for (Layer l : inputs) {
 			l.backward();
 			offset += l.A.rows;
 		}
@@ -48,8 +49,6 @@ public class ConcatLayer extends Layer {
 	}
 
 	@Override
-	public void pullWeights() {
-
-	}
+	public void pullWeights() { }
 
 }

@@ -6,8 +6,8 @@ import org.jblas.FloatMatrix;
 import java.util.List;
 
 public class SoftmaxPrecision {
-	float[][] p;
-	float[] l;
+	private float[][] p;
+	private float[] l;
 
 	public SoftmaxPrecision(FloatMatrix l, FloatMatrix p) {
 		this.l = l.toArray();

@@ -1,14 +1,12 @@
 package data;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
-import java.util.Map;
 
 public class LibsvmParser implements Parser {
-    // key 是第几组
+
     @Override
     public List<Feature> parse(String line) {
         if (StringUtils.isBlank(line)) {

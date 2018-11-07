@@ -1,23 +1,22 @@
 package layer;
 
 import activations.Activation;
-import activations.Relu;
-import activations.Sigmoid;
-import com.google.common.collect.Lists;
+
 import com.google.common.collect.Maps;
 import context.Context;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jblas.FloatMatrix;
-import org.jblas.MatrixFunctions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.MatrixUtil;
 import visual.UiClient;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class LRLayer extends Layer {
 	private static Logger logger = LoggerFactory.getLogger(LRLayer.class);
@@ -35,19 +34,11 @@ public class LRLayer extends Layer {
 	protected Callable<FloatMatrix> initB;
 
 	public LRLayer(String name, final int inputDims) {
+
 		super(name, inputDims, 1);
-		this.initW = new Callable<FloatMatrix>() {
-			@Override
-			public FloatMatrix call() throws Exception {
-				return FloatMatrix.zeros(1);
-			}
-		};
-		this.initB = new Callable<FloatMatrix>() {
-			@Override
-			public FloatMatrix call() throws Exception {
-				return FloatMatrix.zeros(1);
-			}
-		};
+
+		this.initW = () -> FloatMatrix.zeros(1);
+		this.initB = () -> FloatMatrix.zeros(1);
 
 		// weights 按需初始化
 		bias = kvStore.get(this.name + ".bias", initB);

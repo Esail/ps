@@ -1,6 +1,5 @@
 package model;
 
-import activations.Relu;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import context.Context;
@@ -14,10 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import update.AdamUpdater;
 import update.Updater;
-import util.MatrixUtil;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 @Data
 public class DNN implements Model {
@@ -70,9 +69,7 @@ public class DNN implements Model {
 	}
 
 	public void pullWeights() {
-		for (int i=0; i<layers.size(); i++) {
-			layers.get(i).pullWeights();
-		}
+		IntStream.range(0, layers.size()).forEach(i -> layers.get(i).pullWeights());
 	}
 
 	public FloatMatrix predict(Map<String, FloatMatrix> datas) {
@@ -107,7 +104,7 @@ public class DNN implements Model {
 		int inputSize = concatLayer.getOutputDims();
 		List<Layer> fcLayers = FcLayer.build(inputSize, fcLayerDims);
 
-		/**
+		/*
 		 * 组织层关系
 		 * category -> embedding + number -> full connected
 		 */

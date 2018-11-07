@@ -3,16 +3,18 @@ package context;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Supplier;
 
 public class Context {
 
 	public static ThreadLocal<Integer> modelIndex = new ThreadLocal<>();
 
-	public static enum Stat {
+	public enum Stat {
 		TRAINING, PREDICTING, LOSS_SURFACE_EVAL
+	}
+
+	public enum Mode {
+		STANDALONE, DISTRIBUTED
 	}
 
 	public static volatile float weightsScale;
@@ -22,10 +24,6 @@ public class Context {
 	public static volatile long nTermDump;
 
 	public static volatile boolean finish;
-
-	public static enum Mode {
-		STANDALONE, DISTRIBUTED
-	}
 
 	public static volatile AtomicLong step = new AtomicLong(0);
 
@@ -61,12 +59,15 @@ public class Context {
 		if (inited) {
 			return;
 		}
+
 		inited = true;
+
 		if ("dist".equals(System.getProperty("mode", "stand"))) {
 			mode = Mode.DISTRIBUTED;
 		} else {
 			mode = Mode.STANDALONE;
 		}
+
 		nTermDump = Integer.parseInt((System.getProperty("nTermDump", "20")));
 		logRandom = Integer.parseInt((System.getProperty("logRandom", "10")));
 		finish = false;
@@ -75,16 +76,18 @@ public class Context {
 		isPsAsync = "1".equals(System.getProperty("isPsAsync", "0"));
 		workerNum = Integer.parseInt((System.getProperty("workerNum", "1")));
 		isMajor = "1".equals(System.getProperty("isMajor", "1"));
-		psPort = Integer.parseInt((System.getProperty("psPort", "8891")));
+		psPort = Integer.parseInt((System.getProperty("psPort", "8890")));
 		psHost = System.getProperty("psHost", "localhost");
-		psAddrs = System.getProperty("psAddrs", "localhost:8890,localhost:8891");
+		psAddrs = System.getProperty("psAddrs", "localhost:8890");
 		uiPort = Integer.parseInt((System.getProperty("uiPort", "8990")));
 		uiHost = System.getProperty("uiHost", "localhost");
+
 		try {
 			host = InetAddress.getLocalHost().getHostName();
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	public static boolean isTraining() {

@@ -1,18 +1,14 @@
 package layer;
 
 import activations.Activation;
-import activations.Relu;
-import activations.Sigmoid;
-import com.google.common.collect.Lists;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jblas.FloatMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.MatrixUtil;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class AddLayer extends Layer {
 	private static Logger logger = LoggerFactory.getLogger(AddLayer.class);
@@ -62,5 +58,4 @@ public class AddLayer extends Layer {
 
 	public void pullWeights() {
 	}
-
 }

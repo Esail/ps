@@ -55,7 +55,7 @@ public class AdamUpdater implements Updater {
 	}
 
 	public FloatMatrix update(String key, FloatMatrix w, FloatMatrix dw) {
-		if (M == null || V == null || !M.containsKey(key) || !M.containsKey(key)) {
+		if (M == null || V == null || !M.containsKey(key) || !V.containsKey(key)) {
 			initMandV(key, dw);
 		}
 		M.put(key, dw.mul(1 - beta1).addi(M.get(key).muli(beta1)));
@@ -73,11 +73,11 @@ public class AdamUpdater implements Updater {
 		return "adam@alfa:"+alfa+"@beta1:"+beta1+"@beta2:"+beta2+"@epsilon:"+epsilon+"@";
 	}
 
-	public void initMandV(String key, FloatMatrix dw) {
+	private void initMandV(String key, FloatMatrix dw) {
 		FloatMatrix t = new FloatMatrix(dw.rows, dw.columns);
 		if (M == null || V == null) {
-			M = new HashMap<String, FloatMatrix>();
-			V = new HashMap<String, FloatMatrix>();
+			M = new HashMap<>();
+			V = new HashMap<>();
 		}
 		M.put(key, t);
 		V.put(key, t);

@@ -1,8 +1,6 @@
 package activations;
 
-import org.apache.commons.math3.util.FastMath;
 import org.jblas.FloatMatrix;
-import org.jblas.MatrixFunctions;
 
 public class Softmax implements Activation {
 
@@ -17,7 +15,6 @@ public class Softmax implements Activation {
 	}
 
 	// x有多行是多分类结果 列是batch数量
-	//
 	public FloatMatrix forward(FloatMatrix x) {
 		x.divi(scale);
 		// shift

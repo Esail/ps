@@ -24,29 +24,18 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class PServer implements net.PSGrpc.PS, Runnable {
 
 	static Logger logger = LoggerFactory.getLogger(PServer.class);
-
 	static final Resp success = Resp.newBuilder().setEc(200).setEm("").build();
 
 	private Server server;
-
 	private Map<String, Updater> updaterMap = Maps.newConcurrentMap();
-
 	private KVStore store;
-
 	private Map<String, FloatMatrix> storeFloatMatrix = Maps.newConcurrentMap();
-
 	private int workerNum;
-
 	private final AtomicLong globalStep = new AtomicLong(0);
-
 	private final AtomicLong workerStep = new AtomicLong(0);
-
 	private Map<String, String> updateKeys = Maps.newConcurrentMap();
-
 	private ReadWriteLock updateKeysLock = new ReentrantReadWriteLock();
-
 	private Executor updateThread = Executors.newSingleThreadExecutor();
-
 	private Resp error(int ec, String em) {
 		return Resp.newBuilder().setEc(ec).setEm(em).build();
 	}
@@ -62,16 +51,14 @@ public class PServer implements net.PSGrpc.PS, Runnable {
 		try {
 			server.start();
 			server.awaitTermination();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		} finally {
 			close();
 		}
 	}
 
-	public void close() {
+	private void close() {
 		server.shutdown();
 	}
 
@@ -163,9 +150,11 @@ public class PServer implements net.PSGrpc.PS, Runnable {
 
 	public void push(GradientMessage request, StreamObserver<GradientMessage> responseObserver) {
 		String key = request.getGradient().getKey();
-//		if (!request.getGradient().getKey().contains("emF")) {
-//			logger.info("update {}", key);
-//		}
+
+		if (!request.getGradient().getKey().contains("emF")) {
+			logger.info("update {}", key);
+		}
+
 		Updater updater = updaterMap.get(request.getUpdaterKey());
 		if (updater == null) {
 			logger.error("updater {} is null", request.getUpdaterKey());
@@ -214,9 +203,11 @@ public class PServer implements net.PSGrpc.PS, Runnable {
 	}
 
 	public void run() {
+
 		if (Context.isPsAsync) {
 			return;
 		}
+
 		while (true) {
 			synchronized (this) {
 				try {
@@ -226,7 +217,9 @@ public class PServer implements net.PSGrpc.PS, Runnable {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+
 				psUpdate();
+
 				synchronized (globalStep) {
 					// 通知所有barrier
 					globalStep.notifyAll();

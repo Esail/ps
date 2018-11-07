@@ -3,18 +3,11 @@ package visual;
 import context.Context;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import net.PSClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ExecutionException;
 
 public class UiClient {
-    static Logger logger = LoggerFactory.getLogger(UiClient.class);
 
-    ManagedChannel channel;
-
-    UiServerGrpc.UiServerFutureStub stub;
+    private ManagedChannel channel;
+    private UiServerGrpc.UiServerFutureStub stub;
 
     private static UiClient client = new UiClient();
 
@@ -22,11 +15,11 @@ public class UiClient {
         return client;
     }
 
-    public UiClient() {
+    private UiClient() {
         this(Context.uiHost, Context.uiPort);
     }
 
-    public UiClient(String host, int port) {
+    private UiClient(String host, int port) {
         channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext(true).build();
         stub = UiServerGrpc.newFutureStub(channel).withCompression("gzip");
     }

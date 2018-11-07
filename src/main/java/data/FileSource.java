@@ -4,9 +4,9 @@ import java.io.*;
 
 public class FileSource extends DataSource {
 
-    File file;
+    private File file;
 
-    BufferedReader reader;
+    private BufferedReader reader;
 
     public FileSource(File file) {
         this.file = file;

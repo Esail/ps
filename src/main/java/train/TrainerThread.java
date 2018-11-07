@@ -11,15 +11,12 @@ import java.util.concurrent.Callable;
 
 public class TrainerThread implements Callable<Float> {
 
-	static Logger logger = LoggerFactory.getLogger(TrainerThread.class);
+	private static Logger logger = LoggerFactory.getLogger(TrainerThread.class);
+	private Map<String, FloatMatrix> datas;
+	private Model nn;
+	private int modelIndex;
 
-	Map<String, FloatMatrix> datas;
-
-	Model nn;
-
-	int modelIndex;
-
-	public TrainerThread(int modelIndex , Model nn, Map<String, FloatMatrix> datas) {
+	TrainerThread(int modelIndex , Model nn, Map<String, FloatMatrix> datas) {
 		this.modelIndex = modelIndex;
 		this.datas = datas;
 		this.nn = nn;
@@ -34,7 +31,7 @@ public class TrainerThread implements Callable<Float> {
 			return nn.train(datas);
 		} catch (Exception e) {
 			logger.error("trainer error", e);
+			throw new Exception(e);
 		}
-		return 0f;
 	}
 }

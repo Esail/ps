@@ -2,12 +2,9 @@ package layer;
 
 import activations.Relu;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import context.Context;
 import lombok.Data;
 import org.jblas.FloatMatrix;
-import store.KVStore;
-import update.Updater;
 import util.MatrixUtil;
 import visual.UiClient;
 

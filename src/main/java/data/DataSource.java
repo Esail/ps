@@ -4,15 +4,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class DataSource {
-    // 数据偏移
-    protected int offset = 0;
-    protected int idx = 0;
+	private int idx = 0;
+
     // 读步长
     protected int step = 1;
+	private ReadWriteLock resetLock = new ReentrantReadWriteLock();
 
-	protected ReadWriteLock resetLock = new ReentrantReadWriteLock();
-
-    public void reset() {
+    void reset() {
 		try {
 			resetLock.writeLock().lock();
 			idx = 0;
@@ -22,10 +20,12 @@ public abstract class DataSource {
 		}
 	}
 
-    public String readLine() {
+    String readLine() {
 		try {
 			resetLock.readLock().lock();
 			// seek to offset
+			// 数据偏移
+			int offset = 0;
 			while (idx <= offset) {
 				String line = readLineInternal();
 				idx++;

@@ -1,21 +1,14 @@
 package layer;
 
-
-import activations.Activation;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jblas.FloatMatrix;
-import store.KVStore;
 
-import java.util.List;
-import java.util.concurrent.Callable;
-
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class PoolingLayer extends Layer {
 
@@ -100,7 +93,7 @@ public class PoolingLayer extends Layer {
 		return this.A;
 	}
 
-	public int max(float[] l) {
+	private int max(float[] l) {
 		float m = l[0];
 		int i = 0;
 		for (int j=0; j<l.length; j++) {
@@ -135,6 +128,5 @@ public class PoolingLayer extends Layer {
 
 	public void pullWeights() {
 		index.clear();
-		return;
 	}
 }

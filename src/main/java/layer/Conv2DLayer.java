@@ -1,9 +1,9 @@
 package layer;
 
-
 import activations.Activation;
 import context.Context;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.jblas.FloatMatrix;
 import store.KVStore;
 import util.MatrixUtil;
@@ -11,6 +11,7 @@ import visual.UiClient;
 
 import java.util.concurrent.Callable;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class Conv2DLayer extends Layer {
 
@@ -126,7 +127,7 @@ public class Conv2DLayer extends Layer {
 		return new FloatMatrix(img);
 	}
 
-	public FloatMatrix reshapeForward(FloatMatrix m, int N) {
+	private FloatMatrix reshapeForward(FloatMatrix m, int N) {
 		int W = getOutputW();
 		int H = getOutputH();
 		FloatMatrix result = FloatMatrix.zeros(K * W * H, N);
@@ -165,7 +166,7 @@ public class Conv2DLayer extends Layer {
 		return this.A;
 	}
 
-	public FloatMatrix reshapeBackward(FloatMatrix m, int N) {
+	private FloatMatrix reshapeBackward(FloatMatrix m, int N) {
 		int W = getOutputW();
 		int H = getOutputH();
 		FloatMatrix result = FloatMatrix.zeros(K, W * H * N);

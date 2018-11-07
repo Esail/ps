@@ -6,13 +6,10 @@ import org.jblas.FloatMatrix;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Created by mengjun on 18/5/23.
- */
 public class MatrixUtil {
 
 	public static String pretty(FloatMatrix f) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("\n");
 		for (int i=0; i<f.rows; i++) {
 			sb.append("[");
@@ -87,8 +84,8 @@ public class MatrixUtil {
 			return m;
 		}
 		float[] data = matrix.data;
-		for (int i=0; i<data.length; i++) {
-			m.addData(data[i]);
+		for (float aData : data) {
+			m.addData(aData);
 		}
 		m.setRow(matrix.rows);
 		m.setCols(matrix.columns);

@@ -11,13 +11,13 @@ import java.util.concurrent.Callable;
 
 public class PredictThread implements Callable<FloatMatrix> {
 
-	static Logger logger = LoggerFactory.getLogger(PredictThread.class);
+	private static Logger logger = LoggerFactory.getLogger(PredictThread.class);
 
-	Map<String, FloatMatrix> datas;
+	private Map<String, FloatMatrix> datas;
 
-	Model nn;
+	private Model nn;
 
-	int modelIndex;
+	private int modelIndex;
 
 	public PredictThread(int modelIndex, Model nn, Map<String, FloatMatrix> datas) {
 		this.modelIndex = modelIndex;
@@ -26,15 +26,15 @@ public class PredictThread implements Callable<FloatMatrix> {
 	}
 
 	@Override
-	public FloatMatrix call() throws Exception {
+	public FloatMatrix call() throws Exception{
 		try {
 			Context.modelIndex.set(modelIndex);
-			// 拉取权重
+			// pull weights
 			nn.pullWeights();
 			return nn.predict(datas);
 		} catch (Exception e) {
 			logger.error("trainer error", e);
+			throw new Exception(e);
 		}
-		return null;
 	}
 }

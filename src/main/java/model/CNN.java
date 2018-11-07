@@ -3,23 +3,20 @@ package model;
 import activations.Relu;
 import activations.Softmax;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import context.Context;
-import evaluate.SoftmaxPrecision;
+
 import layer.*;
 import lombok.Data;
-import loss.CrossEntropy;
-import loss.Loss;
+import lombok.EqualsAndHashCode;
+
 import loss.SoftmaxLoss;
-import org.jblas.FloatMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import update.AdamUpdater;
-import update.Updater;
 
 import java.util.List;
-import java.util.Map;
 
+// 卷积神经网络（Convolutional Neural Network, CNN
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class CNN extends FullConnectedNN {
 
@@ -48,7 +45,7 @@ public class CNN extends FullConnectedNN {
 		logger.info("cnn {}", pool2.getOutputDims());
 		List<Layer> fcLayers = FcLayer.build(pool2.getOutputDims(), fcLayerDims);
 		((FcLayer)fcLayers.get(fcLayers.size() - 1)).setActivation(new Softmax());
-		/**
+		/*
 		 * 组织层关系
 		 * number -> conv1 -> max pooling -> conv2 -> max pooling -> full connected -> softmax
 		 */

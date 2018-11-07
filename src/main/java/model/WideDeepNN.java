@@ -1,6 +1,5 @@
 package model;
 
-import activations.Relu;
 import activations.Sigmoid;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -17,7 +16,6 @@ import update.AdamUpdater;
 import update.FtrlUpdater;
 import update.SimpleUpdater;
 import update.Updater;
-import util.MatrixUtil;
 import visual.UiClient;
 
 import java.util.List;
@@ -80,8 +78,8 @@ public class WideDeepNN implements Model {
 	}
 
 	public void pullWeights() {
-		for (int i=0; i<layers.size(); i++) {
-			layers.get(i).pullWeights();
+		for (Layer layer : layers) {
+			layer.pullWeights();
 		}
 	}
 
@@ -131,10 +129,10 @@ public class WideDeepNN implements Model {
 		LRLayer wide = new LRLayer("wide", wideSize);
 		((LRLayer) wide).setActivation(null);
 		// 合并 wide层和deep层
-		Layer addWideDeep = new AddLayer("addWideDeep", deepLastLayer, wide);
-		((AddLayer) addWideDeep).setActivation(new Sigmoid());
+		AddLayer addWideDeep = new AddLayer("addWideDeep", deepLastLayer, wide);
+		addWideDeep.setActivation(new Sigmoid());
 
-		/**
+		/*
 		 * 组织层关系
 		 * category -> embedding + number -> full connected -> wide full connected layer
 		 */
@@ -159,5 +157,4 @@ public class WideDeepNN implements Model {
 		nn.setLayers(layers);
 		return nn;
 	}
-
 }

@@ -9,10 +9,10 @@ import java.util.*;
 @Data
 public class AUC {
 
-    private double posNum; //正
+    private double posNum;
     private double negNum;
 
-    private Pair<Double, Double> dataList[];
+    private Pair<Double, Double>[] dataList;
 
     public AUC(List<Pair<Double, Double>> dataList) {
         this.dataList = new MutablePair[dataList.size()];
@@ -30,12 +30,8 @@ public class AUC {
 
     // 排序样本统计
     private void sampleCount() {
-        Arrays.sort(this.dataList, new Comparator<Pair<Double, Double>>() {
-            @Override
-            public int compare(Pair<Double, Double> o1, Pair<Double, Double> o2) {
-                return o1.getKey().compareTo(o2.getKey());
-            }
-        });
+
+        Arrays.sort(this.dataList, (o1, o2) -> o1.getKey().compareTo(o2.getKey()));
 
         for (Pair<Double, Double> pair : this.dataList) {
             double y = pair.getValue();
@@ -59,7 +55,7 @@ public class AUC {
             } else {
                 tp += 1;
             }
-            result.add(new MutablePair<Double, Double>(tp / this.posNum, fp / this.negNum));
+            result.add(new MutablePair<>(tp / this.posNum, fp / this.negNum));
         }
         return result;
     }

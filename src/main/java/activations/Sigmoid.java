@@ -1,13 +1,12 @@
 package activations;
 
-
-
 import org.jblas.FloatMatrix;
 
+// S(t) = 1 / (1 + e^-t)
 public class Sigmoid implements Activation {
 
 	public FloatMatrix forward(FloatMatrix x) {
-		for (int i=0; i<x.length; i++) {
+		for (int i = 0; i < x.length; i++) {
 			x.data[i] = (float) (0.001f + (.999f-0.001f) / (1f + Math.exp(-x.data[i])));
 		}
 		return x;

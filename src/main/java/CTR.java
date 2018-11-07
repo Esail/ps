@@ -6,7 +6,6 @@ import evaluate.AUC;
 import evaluate.LossSurface;
 import loss.CrossEntropy;
 import model.DNN;
-import model.Model;
 import net.PServer;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -19,25 +18,19 @@ import update.AdamUpdater;
 import update.FtrlUpdater;
 import update.Updater;
 import util.MatrixUtil;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+
 
 public class CTR extends DataSet {
 
 	private static Logger logger = LoggerFactory.getLogger(CTR.class);
-
-	public static final int wideSize = 100000;
-
-	static DataSet trainSet;
-
-	static DataSet testSet;
+	private  static final int wideSize = 100000;
+	private static DataSet trainSet;
+	private static DataSet testSet;
 
 	public CTR(Parser parser, DataSource source, int batch, int thread) {
 		super(parser, source, batch, thread);
@@ -69,7 +62,7 @@ public class CTR extends DataSet {
 
 	public static void main(String args[]) throws Exception {
 		Context.init();
-		Context.thread = 2;
+		Context.thread = 4;
 		Context.mode = Context.Mode.DISTRIBUTED;
 
 		if (Context.isPServer()) {
@@ -88,19 +81,12 @@ public class CTR extends DataSet {
 		testSet = new CTR(new LibsvmParser(), new FileSource(new File(System.getProperty("test",
 				CTR.class.getResource("").getPath()+"../../src/main/resources/test.txt"))), 100, 1);
 
-		Trainer trainer = new Trainer(Context.thread, new Callable<Model>() {
-			@Override
-			public Model call() throws Exception {
-				return DNN.buildModel(23, 10, 45, new int[]{150, 10, 1});
-			}
-		});
+		Trainer trainer = new Trainer(Context.thread, () -> DNN.buildModel(23, 10, 45, new int[]{150, 10, 1}));
 
 		for (int epoch = 0; epoch < 10 && !Context.finish; epoch++) {
 			logger.info("epoch {}", epoch);
 			train(trainer);
-
 			auc(trainer);
-
 			loss_surface(trainer);
 		}
 	}

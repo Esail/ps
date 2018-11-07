@@ -17,10 +17,12 @@ public class SimpleUpdater implements Updater {
 		eta = Float.parseFloat(StringUtils.substringBetween(str, "eta:", "@"));
 	}
 
+	@Override
 	public FloatMatrix update(String t, FloatMatrix w, FloatMatrix dw) {
 		return w.addi(dw.muli(-eta));
 	}
 
+	@Override
 	public String getName() {
 		return "simple@eta:"+eta+"@";
 	}

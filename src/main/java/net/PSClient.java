@@ -18,15 +18,11 @@ import java.util.concurrent.Future;
 @Data
 public class PSClient {
 
-	static Logger logger = LoggerFactory.getLogger(PSClient.class);
-
-	ManagedChannel channel;
-
-	net.PSGrpc.PSFutureStub stub;
-
-	String host;
-
-	int port;
+	private final static Logger logger = LoggerFactory.getLogger(PSClient.class);
+	private final ManagedChannel channel;
+	private final net.PSGrpc.PSFutureStub stub;
+	private final String host;
+	private final int port;
 
 	public PSClient() {
 		this(Context.psHost, Context.psPort);
@@ -43,32 +39,41 @@ public class PSClient {
 		channel.shutdown();
 	}
 
-	// 从参数服务器获取参数
+	// get parameters from ps server
 	public FloatMatrix get(String key) {
+
 		Matrix matrix = Matrix.newBuilder().setKey(key).build();
+
 		try {
+
 			GetMessage result = stub.get(GetMessage.newBuilder()
 					.setMeta(RequestMeta.newBuilder().setHost(Context.host).build())
 					.setWeights(matrix).build()).get();
+
+			// status code must be 200
 			if (result.getResp().getEc() != 200) {
 				if (result.getResp().getEc() != 204) {
 					logger.info("get error {} key:{}", result.getResp().getEm(), key);
 				}
 				return null;
 			}
+
 			FloatMatrix tmp = MatrixUtil.ProtoMatrix_2_FloatMatrix(result.getWeights());
+
 			if (!key.contains("emF")) {
 				logger.info("get key {} len {} rows {} cols {}", key, tmp.data.length, tmp.rows, tmp.columns);
 			}
+
 			return tmp;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
+
 		return null;
 	}
 
+	// 拿到所有的model
 	public Map<String, FloatMatrix> getList(List<String> keys) {
 		logger.debug("getList keys {}, len {}", keys.subList(0, Math.min(keys.size(), 10)), keys.size());
 		Map<String, FloatMatrix> result = Maps.newHashMap();
@@ -88,9 +93,7 @@ public class PSClient {
 				}
 				result.put(resp.getWeights(i).getKey(), MatrixUtil.ProtoMatrix_2_FloatMatrix(resp.getWeights(i)));
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		return result;
@@ -98,30 +101,37 @@ public class PSClient {
 
 	// 更新matrix到参数服务器 replace为false 重复key不替换
 	public FloatMatrix update(String key, FloatMatrix weights, boolean replace) {
+
 		try {
+
 			UpdateMessage result = stub.upsert(UpdateMessage.newBuilder()
 					.setMeta(RequestMeta.newBuilder().setHost(Context.host).build())
 					.setReplace(replace)
 					.setWeights(MatrixUtil.FloatMatrix_2_ProtoMatrix(key, weights)).build()).get();
+
 			if (result.getResp().getEc() != 200) {
 				logger.info("get error {}", result.getResp().getEm());
 				return null;
 			}
+
 			if (!result.getWeights().getUpdate()) {
 				// 成功替换
 				return weights;
 			}
+
 			// 没有替换，获取到新的weights
 			FloatMatrix tmp = MatrixUtil.ProtoMatrix_2_FloatMatrix(result.getWeights());
+
 			if (!key.contains("emF")) {
 				logger.info("update key {} len {} rows {} cols {}", key, tmp.data.length, tmp.rows, tmp.columns);
 			}
+
 			return tmp;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
+
 		return null;
 	}
 
@@ -142,9 +152,7 @@ public class PSClient {
 				FloatMatrix tmp = MatrixUtil.ProtoMatrix_2_FloatMatrix(m);
 				updates.put(m.getKey(), tmp);
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 		return updates;
@@ -162,15 +170,11 @@ public class PSClient {
 				GradientMessage result = future.get();
 				if (result.getResp().getEc() != 200) {
 					logger.info("get error {}", result.getResp().getEm());
-					return;
 				}
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
-		return;
 	}
 
 	// 阻塞等待ps 进入下一轮训练
@@ -178,9 +182,7 @@ public class PSClient {
 		try {
 			stub.barrier(BarrierMessage.newBuilder()
 					.setMeta(RequestMeta.newBuilder().setHost(Context.host).build()).build()).get();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
+		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
 	}

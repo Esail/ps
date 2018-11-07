@@ -1,13 +1,8 @@
 package layer;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import com.google.common.collect.Lists;
-import context.Context;
 import org.jblas.FloatMatrix;
 import org.jblas.JavaBlas;
 
